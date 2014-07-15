@@ -3,13 +3,15 @@ module RailsSettings
     after_update :rewrite_cache    
     after_create :rewrite_cache
     def rewrite_cache
-      Rails.cache.write("settings:#{self.var}", self.value)
+      locale = I18n.locale
+      Rails.cache.write("settings:#{locale}:#{self.var}", self.value)
     end
     
-    after_destroy { |record| Rails.cache.delete("settings:#{record.var}") }
+    after_destroy { |record| Rails.cache.delete("settings:#{I18n.locale}:#{record.var}") }
     
     def self.[](var_name)
-      cache_key = "settings:#{var_name}"
+      locale = I18n.locale
+      cache_key = "settings:#{locale}:#{var_name}"
       obj = Rails.cache.fetch(cache_key) {
         super(var_name)
       }
